@@ -45,7 +45,7 @@ const MainApp = ({navigation, route}) => {
 const Route = () => {
     return (
         <Stack.Navigator initialRouteName="MainApp">
-            <Stack.Screen name="MainApp" component={MainApp} />
+            <Stack.Screen name="MainApp" component={MainApp} options={{ title: 'SWG - Sistem Informasi Desa' }} />
             <Stack.Screen name="MenuA" component={MenuA} options={{ title: 'Menu A' }} />
             <Stack.Screen name="MenuB" component={MenuB} options={{ title: 'Menu B' }} />
             <Stack.Screen name="MenuC" component={MenuC} options={{ title: 'Menu C' }} />

@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 import { ICONHome, ICONAirplane, ICCar, ICONScan, ICONMenu } from '../../Assets';
 
 const TabItem = ({title, active, onPress, onLongPress}) => {
-    console.log("TITLE NYA === "+title);
     const Icon = () => {
         if(title === 'Menu A'){
             return active ? <ICONHome /> : <ICONHome />;
@@ -18,9 +17,6 @@ const TabItem = ({title, active, onPress, onLongPress}) => {
             return active ? <ICONScan /> : <ICONScan />;
         }
         if(title === 'Menu E'){
-            return active ? <ICONMenu /> : <ICONMenu />;
-        }
-        if(title === 'Menu F'){
             return active ? <ICONMenu /> : <ICONMenu />;
         }
         return <ICONHome />;
