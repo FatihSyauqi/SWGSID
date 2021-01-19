@@ -8,37 +8,7 @@ const MenuE = ({}) => {
 
   return (
     <View>
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={value => onChange(value)}
-            value={value}
-          />
-        )}
-        name="firstName"
-        rules={{ required: true }}
-        defaultValue=""
-      />
-      {errors.firstName && <Text>This is required.</Text>}
-
-      <Controller
-        control={control}
-        render={({ onChange, onBlur, value }) => (
-          <TextInput
-            style={styles.input}
-            onBlur={onBlur}
-            onChangeText={value => onChange(value)}
-            value={value}
-          />
-        )}
-        name="lastName"
-        defaultValue=""
-      />
-
-      <Button title="Submit" onPress={handleSubmit(onSubmit)} />
+        <Text>MENU E</Text>
     </View>
   );
 }

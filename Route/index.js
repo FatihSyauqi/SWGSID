@@ -2,7 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { MenuA, MenuB, MenuC, MenuD, MenuE, MenuF } from '../Pages';
+import { Splashscreen, Login, MenuA, MenuB, MenuC, MenuD, MenuE, MenuF } from '../Pages';
 import BottomNavigator from '../Components/BottomNavigator';
 
 const Stack = createStackNavigator();
@@ -14,6 +14,7 @@ const MainApp = ({navigation, route}) => {
             <Tab.Screen
                 name="MenuA"
                 component={MenuA}
+                initialParams={{"url":"menu-a", header_title:"Menu A" }}
                 options={{ tabBarLabel: 'Menu A' }}
             />
             <Tab.Screen
@@ -25,6 +26,7 @@ const MainApp = ({navigation, route}) => {
             <Tab.Screen
                 name="MenuC"
                 component={MenuC}
+                initialParams={{"url":"menu-c", header_title:"Menu C" }}
                 options={{ tabBarLabel: 'Menu C' }}
             />
             <Tab.Screen
@@ -44,9 +46,11 @@ const MainApp = ({navigation, route}) => {
 
 const Route = () => {
     return (
-        <Stack.Navigator initialRouteName="MainApp">
-            <Stack.Screen name="MainApp" component={MainApp} options={{ title: 'SWG - Sistem Informasi Desa' }} />
-            <Stack.Screen name="MenuA" component={MenuA} options={{ title: 'Menu A' }} />
+        <Stack.Navigator initialRouteName="Splashscreen">
+            <Stack.Screen name="MainApp" component={MainApp} options={{ title: 'Survey Penduduk' }} />
+            <Stack.Screen name="Splashscreen" component={Splashscreen} options={{headerShown: false}}/>
+            <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
+            <Stack.Screen name="MenuA" component={MenuA} options={{ title: 'Menu A' }}/>
             <Stack.Screen name="MenuB" component={MenuB} options={{ title: 'Menu B' }} />
             <Stack.Screen name="MenuC" component={MenuC} options={{ title: 'Menu C' }} />
             <Stack.Screen name="MenuD" component={MenuD} options={{ title: 'Menu D' }} />
