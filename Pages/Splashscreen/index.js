@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { StyleSheet, Image,ImageBackground, Dimensions, Text, View} from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const imageBackground = { uri : "https://designmodo.com/wp-content/uploads/2014/04/SplashScreen-iOS-640px.jpg"}
 var {width} = Dimensions.get('window');
@@ -13,7 +14,14 @@ const Splashscreen = ({navigation,route}) => {
     GetLokasi();
 
     setTimeout(() => {
-        navigation.replace('Login')
+        AsyncStorage.getItem('SessionLogin', (error, result) => {
+        if(result != null){
+          const resData = JSON.parse(result); 
+          navigation.replace('MainApp');
+        } else {
+          navigation.replace('Login');
+        }
+      });
     }, 3000)
   },)
   return (

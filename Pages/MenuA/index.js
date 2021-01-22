@@ -1,418 +1,177 @@
-import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, PermissionsAndroid, Platform, Text, View, TextInput, TouchableHighlight, SafeAreaView, ScrollView,RefreshControl, TouchableOpacity, Select, Button, Alert } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { openDatabase } from 'react-native-sqlite-storage';
-import {Picker} from '@react-native-picker/picker';
+import React, {useState, useEffect, useMemo, useCallback, useRef} from 'react';
+import { StyleSheet, View, FlatList, Text, TouchableHighlight} from 'react-native';
+import {ListItem} from 'native-base';
+import {_} from 'lodash';
 
-const GLOBALDATA = require('../../Function/global');
-
-var db = openDatabase({ name: 'sqlite.db' });
+var tempData = [];
+for (let i = 1; i <= 100; ++i){
+  tempData.push({ "id": i, no_kk: "320104171297000"+i, lat: "-6.418454"+""+i.toString(), lon: "106.776544"+""+i.toString(), alamat: "Alamat lengkap penduduk akan tampil disini" });
+}
+const itemList = tempData;
 
 const MenuA = ({navigation,route}) => {
-  /// get location
-  const [
-    currentLongitude,
-    setCurrentLongitude
-  ] = useState('...');
-  const [
-    currentLatitude,
-    setCurrentLatitude
-  ] = useState('...');
-  /// end get location
+  const flatListRef = useRef(null);
 
-  const { control, handleSubmit, errors } = useForm();
-  const onSubmit = data => console.log(data);
+  const [limit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [clientData, setClientData] = useState([]);
+  const [serverData, serverDataLoaded] = useState([]);
+  const [pending_process, setPending_process] = useState(true);
+  const [loadmore, setLoadmore] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
-  const DataDesas = [{"id":"","nama":"- Choose One -"},{"id":1,"nama":"Desa 1"},{"id":2,"nama":"Desa 2"},{"id":3,"nama":"Desa 3"}];
-  const DataKecamatans = [{"id":"","nama":"- Choose One -"},{"id":1,"nama":"Kecamatan 1"},{"id":2,"nama":"Kecamatan 2"},{"id":3,"nama":"Kecamatan 3"}];
-  const DataKotkabs = [{"id":"","nama":"- Choose One -"},{"id":1,"nama":"Kota 1"},{"id":2,"nama":"Kota 2"},{"id":3,"nama":"Kota 3"}];
-  const DataProvinsis = [{"id":"","nama":"- Choose One -"},{"id":1,"nama":"Provinsi 1"},{"id":2,"nama":"Provinsi 2"},{"id":3,"nama":"Provinsi 3"}];
+  const ApiRequest = async thePage => {
+    await setTimeout(() => {}, 1500);
+    return itemList.slice((thePage - 1) * limit, thePage * limit);
+  };
 
-  const [refreshing, setRefreshing] = React.useState(false);
-  const onRefresh = React.useCallback(() => {
-      setRefreshing(true);
-      wait(2000).then(() => setRefreshing(false));
+  const requestToServer = async thePage => {
+    let data = await ApiRequest(thePage);
+    //console.log('data', data);
+    serverDataLoaded(data);
+  };
+
+  useEffect(() => {
+    console.log('requestToServer');
+    requestToServer(page);
   }, []);
 
   useEffect(() => {
-    setCurrentLongitude(GLOBALDATA.LONG);
-    setCurrentLatitude(GLOBALDATA.LAT);
-  }, []);
-  
-  // const SelectPicker = ({Name,ArrayData}) => {
-  //   return (
-  //     <>
-  //     <Controller
-  //       control={control}
-  //       render={({ onChange, onBlur, value }) => (
-  //         <Picker
-  //           selectedValue={value}
-  //           style={styles.SelectPickerGrid}
-  //           onBlur={onBlur}
-  //           onValueChange={(value, itemIndex) => onChange(value)}
-  //         >
-  //           {ArrayData.map((val, key) => {
-  //             return (
-  //               value == val ? (
-  //                 <Picker.Item label={val.nama} value={val.id} key={key} />
-  //               ) : (
-  //                 <Picker.Item label={val.nama} value={val.id} key={key} />
-  //               )
-  //             );
-  //           })} 
-  //         </Picker>
-  //       )}
-  //       name={Name}
-  //       rules={{ required: true }}
-  //       defaultValue=""
-  //     />
+    console.log('obtained serverData', serverData);
+    if (serverData.length > 0) {
+      setRefresh(false);
+      setClientData([...clientData, ...serverData]);
+      setLoadmore(serverData.length == limit ? true : false);
+      setPending_process(false);
+    } else {
+      setLoadmore(false);
+    }
+  }, [serverData]);
 
-      
-  //     </>
-  //   );
-  // }
+  useEffect(() => {
+    console.log('load more with page', page);
+    if (serverData.length == limit || page == 1) {
+      setPending_process(true);
+      requestToServer(page);
+    }
+  }, [page]);
 
+  const handleLoadMore = () => {
+    console.log('loadmore', loadmore);
+    console.log('pending_process', pending_process);
+    if (loadmore && !pending_process) {
+      setPage(page + 1);
+    }
+  };
+
+  const onRefresh = () => {
+    setClientData([]);
+    setPage(1);
+    setRefresh(true);
+    setPending_process(false);
+  };
+
+  const renderRow = ({item}) => {
+    return (
+        <ListItem onPress={() => navigation.navigate("MenuB",{
+            url:item.no_kk,
+            header_title: item.no_kk+" - "+item.no_kk
+        })}>
+        <View>
+          <Text style={{color: '#000000'}}>
+          <Text style={{color:"black", fontSize:25}}>{item.no_kk}</Text>
+          {"\n"} 
+          <Text style={{color:"black",fontWeight:"bold"}}>Alamat</Text> : {item.alamat} 
+          {"\n"} 
+          <Text style={{color:"black",fontWeight:"bold"}}>Longitude</Text> : {item.lon} 
+          {"\n"} 
+          <Text style={{color:"black",fontWeight:"bold"}}>Latitude</Text> : {item.lat}
+          </Text>
+        </View>
+      </ListItem>
+    );
+  };
 
   return (
-    <View>
-      {/* <Header /> */}
-      <>
-        <SafeAreaView>
-            <ScrollView horizontal={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-              <View style={styles.container}> 
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput placeholder = "Nomor Kartu Keluarga" placeholderTextColor = "#9a73ef" style={styles.inputGrid} onBlur={onBlur} onChangeText={value => onChange(value)} value={value} />
-                    )}
-                    name="NoKartuKeluarga"
-                    defaultValue=""
-                />
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "NoKertas"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="NoKertas"
-                    defaultValue=""
-                />
-              </View>
-              <View style={styles.container}>
-                  <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "Nama Kepala Keluarga"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="NamaKepalaKeluarga"
-                    rules={{ required: true }}
-                    defaultValue=""
-                  />
-
-                  <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "Alamat"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="Alamat"
-                    rules={{ required: true }}
-                    defaultValue=""
-                  />
-              </View>
-              
-              <View style={styles.container}>
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "RT"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="Rt"
-                    defaultValue=""
-                />
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "RW"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="Rw"
-                    defaultValue=""
-                />
-              </View>
-              
-              <View style={styles.container}>
-                  <View style={styles.SelectPickerGrid}>
-                    <Controller
-                      control={control}
-                      render={({ onChange, onBlur, value }) => (
-                        <Picker
-                          selectedValue={value}
-                          onBlur={onBlur}
-                          onValueChange={(value, itemIndex) => onChange(value)}
-                        >
-                          {DataProvinsis.map((val, key) => {
-                            return (
-                              value == val ? (
-                                <Picker.Item label={val.nama} value={val.id} key={key} />
-                              ) : (
-                                <Picker.Item label={val.nama} value={val.id} key={key} />
-                              )
-                            );
-                          })} 
-                        </Picker>
-                      )}
-                      name="Provinsi"
-                      rules={{ required: true }}
-                      defaultValue=""
-                    />
-                  </View>
-                  
-                  <View style={styles.SelectPickerGrid}>
-                    <Controller
-                      control={control}
-                      render={({ onChange, onBlur, value }) => (
-                        <Picker
-                          selectedValue={value}
-                          onBlur={onBlur}
-                          onValueChange={(value, itemIndex) => onChange(value)}
-                        >
-                          {DataKotkabs.map((val, key) => {
-                            return (
-                              value == val ? (
-                                <Picker.Item label={val.nama} value={val.id} key={key} />
-                              ) : (
-                                <Picker.Item label={val.nama} value={val.id} key={key} />
-                              )
-                            );
-                          })} 
-                        </Picker>
-                      )}
-                      name="Kota"
-                      rules={{ required: true }}
-                      defaultValue=""
-                    />
-                  </View>
-                  
-              </View>
-
-              <View style={styles.container}>
-                  <View style={styles.SelectPickerGrid}>
-                      <Controller
-                        control={control}
-                        render={({ onChange, onBlur, value }) => (
-                          <Picker
-                            selectedValue={value}
-                            onBlur={onBlur}
-                            onValueChange={(value, itemIndex) => onChange(value)}
-                          >
-                            {DataDesas.map((val, key) => {
-                              return (
-                                value == val ? (
-                                  <Picker.Item label={val.nama} value={val.id} key={key} />
-                                ) : (
-                                  <Picker.Item label={val.nama} value={val.id} key={key} />
-                                )
-                              );
-                            })} 
-                          </Picker>
-                        )}
-                        name="Desa"
-                        rules={{ required: true }}
-                        defaultValue=""
-                      />
-                  </View>
-                  
-                  <View style={styles.SelectPickerGrid}>
-                      <Controller
-                        control={control}
-                        render={({ onChange, onBlur, value }) => (
-                          <Picker
-                            selectedValue={value}
-                            onBlur={onBlur}
-                            onValueChange={(value, itemIndex) => onChange(value)}
-                          >
-                            {DataKecamatans.map((val, key) => {
-                              return (
-                                value == val ? (
-                                  <Picker.Item label={val.nama} value={val.id} key={key} />
-                                ) : (
-                                  <Picker.Item label={val.nama} value={val.id} key={key} />
-                                )
-                              );
-                            })} 
-                          </Picker>
-                        )}
-                        name="Kecamatan"
-                        rules={{ required: true }}
-                        defaultValue=""
-                      />
-                  </View>
-                  
-              </View>
-
-              <View style={styles.container}> 
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "Kode Pos"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="KodePos"
-                    defaultValue=""
-                />
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "Tanggal Dikeluarkan"
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={value}
-                      />
-                    )}
-                    name="TanggalDikeluarkan"
-                    defaultValue=""
-                />
-              </View>
-              
-              <View style={styles.container}> 
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "Longitude..."
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={currentLongitude}
-                      />
-                    )}
-                    name="Longitude"
-                    defaultValue={currentLongitude}
-                />
-                <Controller
-                    control={control}
-                    render={({ onChange, onBlur, value }) => (
-                      <TextInput
-                        placeholder = "Latitude..."
-                        placeholderTextColor = "#9a73ef"
-                        style={styles.inputGrid}
-                        onBlur={onBlur}
-                        onChangeText={value => onChange(value)}
-                        value={currentLatitude}
-                      />
-                    )}
-                    name="Latitude"
-                    defaultValue={currentLatitude}
-                />
-              </View>
-
-                
-            </ScrollView>
-        </SafeAreaView>
-      </>
-
-
-      <TouchableHighlight
-         style = {styles.submitButton}
-         onPress={handleSubmit(onSubmit)}>
-        <Text style = {styles.submitButtonText}> SIMPAN DATA </Text>
-      </TouchableHighlight>
-
-    </View>
+    <>
+      <View style={styles.rowStyle}>
+        <View style={styles.col6}>
+          <TouchableHighlight
+              style={[styles.button,{backgroundColor: '#2aabd2'}]}
+              onPress={() => navigation.replace('MainApp')}
+              >
+              <Text style={styles.buttonText}> RESET DATA</Text>
+          </TouchableHighlight>
+        </View>
+        <View style={styles.col6}>
+          <TouchableHighlight
+              style={[styles.button,{backgroundColor: '#0060b1'}]}
+              onPress={() => navigation.replace('MainApp')}
+              >
+              <Text style={styles.buttonText}> KIRIM KE SERVER</Text>
+          </TouchableHighlight>
+        </View>
+        <View style={styles.col12}>
+          <TouchableHighlight
+              style={[styles.button,{backgroundColor: 'green'}]}
+              onPress={() => navigation.replace('MenuB')}
+              >
+              <Text style={styles.buttonText}> TAMBAH DATA SURVEY</Text>
+          </TouchableHighlight>
+        </View>
+      </View>
+      <View style={[styles.container, styles.bg_white]}>
+        <FlatList
+          ref={flatListRef}
+          refreshing={refresh}
+          data={clientData}
+          renderItem={renderRow}
+          keyExtractor={(v, i) => i.toString()}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.1}
+          onRefresh={() => onRefresh()}
+        />
+      </View>
+    </>
   );
-}
+};
+
 export default MenuA;
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  rowStyle: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start', // if you want to fill rows left to right,
     justifyContent: 'center',
     backgroundColor: '#ecf0f1',
   },
-  SelectPickerGrid: {
-    width: "45%", 
-    overflow: 'hidden',
-    margin: 10,
-    height: 50,
-    marginBottom:0,
-    borderColor: '#7a42f4',
-    borderWidth: 1
+  container: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start', // if you want to fill rows left to right,
+    justifyContent: 'center',
+    backgroundColor: '#ecf0f1'
   },
-  selectGrid: {
+  bg_white: {
+    backgroundColor: "white"
+  },
+  col12: {
+    width: "100%",
+    padding:5 
+  },
+  col6: {
     width: "50%", 
-    overflow: 'hidden'
+    padding:5
   },
-
-  inputGrid: {
-    margin: 10,
-    height: 40,
-    marginBottom:0,
-    width: "45%", 
-    overflow: 'hidden',
-    borderColor: '#7a42f4',
-    borderWidth: 1
-  },
-
-  input: {
-    margin: 10,
-    height: 40,
-    padding:10,
-    borderColor: '#7a42f4',
-    borderWidth: 1
-  },
-  submitButton: {
-    backgroundColor: '#7a42f4',
+  button: {
     padding: 10,
-    margin: 10,
+    margin: 0,
     height: 40,
   },
-  submitButtonText:{
+  buttonText:{
     color: 'white',
     textAlign:'center'
   }
-});
+})

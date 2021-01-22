@@ -10,6 +10,10 @@ target 'SIDSWG' do
 
   pod 'RNCPicker', :path => '../node_modules/@react-native-picker/picker'
 
+  pod 'react-native-camera', :path => '../node_modules/react-native-camera'
+
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+
   target 'SIDSWGTests' do
     inherit! :complete
     # Pods for testing

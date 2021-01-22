@@ -99,6 +99,11 @@ export const CreateTabel = () => {
           txn.executeSql('CREATE TABLE IF NOT EXISTS tb_status_kk_nik (id_status_kk_nik integer(10) NOT NULL, keterangan varchar(255) NOT NULL, CONSTRAINT pk_status_kk_nik PRIMARY KEY (id_status_kk_nik));');
           txn.executeSql('CREATE TABLE IF NOT EXISTS tb_user (id_user INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username varchar(36) NOT NULL, password varchar(64) NOT NULL, email varchar(64) NOT NULL, isactive integer(10) NOT NULL, CONSTRAINT tr_user_username_key UNIQUE (username), CONSTRAINT tr_user_email_key UNIQUE (email));');
           // END Generate Semua Tabel ke Database
+
+          txn.executeSql('CREATE TABLE IF NOT EXISTS tb_provinsi (id_provinsi integer(10) NOT NULL, keterangan varchar(255) NOT NULL, CONSTRAINT pk_provinsi PRIMARY KEY (id_provinsi));');
+          txn.executeSql('CREATE TABLE IF NOT EXISTS tb_kotkab (id_provinsi integer(10) NOT NULL, id_kotkab integer(10) NOT NULL, keterangan varchar(255) NOT NULL, CONSTRAINT pk_kotkab PRIMARY KEY (id_kotkab));');
+          txn.executeSql('CREATE TABLE IF NOT EXISTS tb_kecamatan (id_kotkab integer(10) NOT NULL, id_kecamatan integer(10) NOT NULL, keterangan varchar(255) NOT NULL, CONSTRAINT pk_kecamatan PRIMARY KEY (id_kecamatan));');
+          txn.executeSql('CREATE TABLE IF NOT EXISTS tb_desa (id_kecamatan integer(10) NOT NULL, id_desa integer(10) NOT NULL, keterangan varchar(255) NOT NULL, CONSTRAINT pk_desa PRIMARY KEY (id_desa));');
         //}
         for (let i = 0; i < res.rows.length; ++i){
           console.log('TABLE EXISTS :', res.rows.item(i).name);
@@ -119,14 +124,19 @@ export const InisialisasiDataLocal = () => {
         // bersihkan semua data
         txn.executeSql('DELETE FROM tb_agama');
         // txn.executeSql('DELETE FROM tb_jenis_bantuan');
-        // txn.executeSql('DELETE FROM tb_jenis_goldar');
+        txn.executeSql('DELETE FROM tb_jenis_goldar');
         txn.executeSql('DELETE FROM tb_jenis_kelamin');
         txn.executeSql('DELETE FROM tb_jenis_pekerjaan');
-        // txn.executeSql('DELETE FROM tb_jenis_warga');
-        // txn.executeSql('DELETE FROM tb_status_kawin');
-        // txn.executeSql('DELETE FROM tb_status_kk');
+        txn.executeSql('DELETE FROM tb_jenis_warga');
+        txn.executeSql('DELETE FROM tb_status_kawin');
+        txn.executeSql('DELETE FROM tb_status_kk');
         // txn.executeSql('DELETE FROM tb_status_kk_nik');
         // txn.executeSql('DELETE FROM tb_user');
+
+        txn.executeSql('DELETE FROM tb_provinsi');
+        txn.executeSql('DELETE FROM tb_kotkab');
+        txn.executeSql('DELETE FROM tb_kecamatan');
+        txn.executeSql('DELETE FROM tb_desa');
         
         const DataInsertAgama = [{"id":1,"nama":"Islam"},{"id":2,"nama":"Kristen Protestan"},{"id":3,"nama":"Katholik"},{"id":4,"nama":"Hindu"},{"id":5,"nama":"Buda"},{"id":6,"nama":"Khong Hu Cu"}];
         const DataInsertJenisKelamin = [{"id":1,"nama":"Laki-laki"},{"id":2,"nama":"Perempuan"}];
@@ -244,7 +254,49 @@ export const InisialisasiDataLocal = () => {
         txn.executeSql("INSERT INTO tb_jenis_pekerjaan (id_jenis_pekerjaan, keterangan) VALUES (87, 'Biarawati');");
         txn.executeSql("INSERT INTO tb_jenis_pekerjaan (id_jenis_pekerjaan, keterangan) VALUES (88, 'Wiraswasta');");
         /// end inisialisasi data combo jenis pekerjaan
+        
 
+        // start inisialisasi data combo golongan darah 
+        txn.executeSql("INSERT INTO tb_jenis_goldar (id_jenis_goldar, keterangan) VALUES (1, 'A');");
+        txn.executeSql("INSERT INTO tb_jenis_goldar (id_jenis_goldar, keterangan) VALUES (2, 'B');");
+        txn.executeSql("INSERT INTO tb_jenis_goldar (id_jenis_goldar, keterangan) VALUES (3, 'O');");
+        txn.executeSql("INSERT INTO tb_jenis_goldar (id_jenis_goldar, keterangan) VALUES (4, 'AB');");
+        // end inisialisasi data combo golongan darah
+
+        // start inisialisasi data combo status kewarganegaraan 
+        txn.executeSql("INSERT INTO tb_jenis_warga (id_warga, keterangan) VALUES (1, 'Warga Negara Indonesia');");
+        txn.executeSql("INSERT INTO tb_jenis_warga (id_warga, keterangan) VALUES (2, 'Warga Negara Asing');");
+        // end inisialisasi data combo status kewarganegaraan 
+
+        // start inisialisasi data combo status perkawinan 
+        txn.executeSql("INSERT INTO tb_status_kawin (id_status_kawin, keterangan) VALUES (1, 'Belum Kawin');");
+        txn.executeSql("INSERT INTO tb_status_kawin (id_status_kawin, keterangan) VALUES (2, 'Kawin');");
+        txn.executeSql("INSERT INTO tb_status_kawin (id_status_kawin, keterangan) VALUES (3, 'Cerai Hidup');");
+        txn.executeSql("INSERT INTO tb_status_kawin (id_status_kawin, keterangan) VALUES (4, 'Cerai Mati');");
+        // end inisialisasi data combo status perkawinan 
+
+        // start inisialisasi data combo status perkawinan 
+        txn.executeSql("INSERT INTO tb_status_kk (id_status_kk, keterangan) VALUES (1, 'Sejahtera');");
+        txn.executeSql("INSERT INTO tb_status_kk (id_status_kk, keterangan) VALUES (2, 'PraSejahtera');");
+        // end inisialisasi data combo status perkawinan 
+
+        // start inisialisasi data combo provinsi 
+        txn.executeSql("INSERT INTO tb_provinsi (id_provinsi, keterangan) VALUES (73, 'Sumatera Selatan');");
+        // end inisialisasi data combo provinsi
+        
+        // start inisialisasi data combo kotkab 
+        txn.executeSql("INSERT INTO tb_kotkab (id_provinsi, id_kotkab, keterangan) VALUES (73, 1606, 'Musi Banyuasin');");
+        // end inisialisasi data combo kotkab
+
+        // start inisialisasi data combo kecamatan 
+        txn.executeSql("INSERT INTO tb_kecamatan (id_kotkab, id_kecamatan, keterangan) VALUES (1606, 1606040, 'Sanga Desa');");
+        // end inisialisasi data combo kecamatan
+
+        // start inisialisasi data combo desa 
+        txn.executeSql("INSERT INTO tb_desa (id_kecamatan, id_desa, keterangan) VALUES (1606040, 1606040005, 'Soak Baru');");
+        // end inisialisasi data combo desa
+
+        
       }
     );
     

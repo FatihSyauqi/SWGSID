@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { StyleSheet, Fragment, Image,ImageBackground, Dimensions, Text, View, TextInput, TouchableHighlight, SafeAreaView, ScrollView,RefreshControl, TouchableOpacity, Select, Button, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const imageBackground = { uri : "http://acct.swg.co.id/assets/img/authentication-bg.jpg"}
 var {width} = Dimensions.get('window');
@@ -8,8 +9,21 @@ var {width} = Dimensions.get('window');
 const Login = ({navigation,route}) => {
 
   const { control, handleSubmit, errors } = useForm();
-  const onSubmit = data => console.log(data);
-
+  const onSubmit = data => {
+      AsyncStorage.setItem('SessionLogin', 
+        JSON.stringify({
+          Email:data.Email
+        })
+      );
+  } 
+  
+  AsyncStorage.getItem('SessionLogin', (error, result) => {
+    if(result != null){
+      const resData = JSON.parse(result); 
+      navigation.replace('MainApp');
+    } 
+  });
+  
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(() => {
       setRefreshing(true);
@@ -20,42 +34,25 @@ const Login = ({navigation,route}) => {
     <View style={styles.container}>
         <ImageBackground source={imageBackground} style={styles.image}>
 
-            <View style={{margin:10, padding:10, paddingTop:35, paddingBottom:35, backgroundColor:"white"}}>
+            <View style={{margin:30, padding:10, paddingTop:35, paddingBottom:35, backgroundColor:"white"}}>
 
-              <View style={styles.containerLogo}>
-                  <Image
-                    style={styles.logo}
-                    source={{
-                      uri: 'http://acct.swg.co.id/assets/img/logo-swg.png',
-                    }}
-                  />
-                  <Text style={styles.headingLogin}>Login - Aplikasi Survey Penduduk</Text>
-              </View>
+                <View style={styles.containerLogo}>
+                    <Image
+                      style={styles.logo}
+                      source={{
+                        uri: 'http://acct.swg.co.id/assets/img/logo-swg.png',
+                      }}
+                    />
+                    <Text style={[styles.h2,{marginBottom:20}]}>APLIKASI SURVEY PENDUDUK</Text>
+                </View>
               
 
-              <Text style={styles.label}>Username atau Email</Text>
-              <Controller
-                  control={control}
-                  render={({ onChange, onBlur, value }) => (
-                    <TextInput
-                      placeholder = "Ketikkan Username atau Email"
-                      placeholderTextColor = "#9a73ef"
-                      style={styles.input}
-                      onBlur={onBlur}
-                      onChangeText={value => onChange(value)}
-                      value={value}
-                    />
-                  )}
-                  name="UsernameOrEmail"
-                  defaultValue=""
-              />
-
-              <Text style={styles.label}>Password atau Kata Sandi</Text>
-              <Controller
+                <Text style={styles.label}>Alamat Email</Text>
+                <Controller
                     control={control}
                     render={({ onChange, onBlur, value }) => (
                       <TextInput
-                        placeholder = "Ketikkan Password atau Kata Sandi"
+                        placeholder = "Ketikkan Alamat Email Disini..."
                         placeholderTextColor = "#9a73ef"
                         style={styles.input}
                         onBlur={onBlur}
@@ -63,13 +60,30 @@ const Login = ({navigation,route}) => {
                         value={value}
                       />
                     )}
-                    name="Password"
+                    name="Email"
                     defaultValue=""
-              />
+                />
+
+                {/* <Text style={styles.label}>Password atau Kata Sandi</Text>
+                <Controller
+                      control={control}
+                      render={({ onChange, onBlur, value }) => (
+                        <TextInput
+                          placeholder = "Ketikkan Password atau Kata Sandi"
+                          placeholderTextColor = "#9a73ef"
+                          style={styles.input}
+                          onBlur={onBlur}
+                          onChangeText={value => onChange(value)}
+                          value={value}
+                        />
+                      )}
+                      name="Password"
+                      defaultValue=""
+                /> */}
                 <TouchableHighlight
                   style = {styles.submitButton}
-                  // onPress={handleSubmit(onSubmit)}
-                  onPress={() => navigation.navigate('MainApp')}
+                  onPress={handleSubmit(onSubmit)}
+                  //onPress={() => navigation.navigate('MainApp')}
                   >
                   <Text style = {styles.submitButtonText}> LOGIN </Text>
                 </TouchableHighlight>
@@ -85,6 +99,13 @@ const Login = ({navigation,route}) => {
 export default Login;
 
 const styles = StyleSheet.create({
+  h2: {
+    color:"blue",
+    fontSize:17,
+    fontWeight: "bold",
+    overflow: 'hidden',
+    textAlign:"center"
+  },
   container: {
     flex: 1,
     flexDirection: "column"
@@ -103,15 +124,6 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     width: "95%",
     height:50
-  },
-  headingLogin: {
-    color:"blue",
-    fontSize:17,
-    fontWeight: "bold",
-    margin: 10,
-    marginBottom:20,
-    overflow: 'hidden',
-    textAlign:"center"
   },
   label: {
     fontWeight: "bold",
