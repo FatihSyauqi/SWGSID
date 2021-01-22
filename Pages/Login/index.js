@@ -10,11 +10,16 @@ const Login = ({navigation,route}) => {
 
   const { control, handleSubmit, errors } = useForm();
   const onSubmit = data => {
+    if(data.Email == ""){
+      alert('Kolom email wajib di isi');
+    } else {
       AsyncStorage.setItem('SessionLogin', 
         JSON.stringify({
           Email:data.Email
         })
       );
+    }
+     
   } 
   
   AsyncStorage.getItem('SessionLogin', (error, result) => {

@@ -30,13 +30,13 @@ const MainApp = ({navigation, route}) => {
                 options={{ tabBarLabel: 'Menu C' }}
             />
             <Tab.Screen
-                name="MenuD"
-                component={MenuD}
-                initialParams={{"url":"menu-d", header_title:"Menu D"}}
-                options={{ tabBarLabel: 'Menu D' }}
+                name="MenuF"
+                component={MenuE}
+                initialParams={{"url":"menu-e", header_title:"Menu E"}}
+                options={{ tabBarLabel: 'Menu E' }}
             />
             <Tab.Screen
-                name="MenuE"
+                name="MenuG"
                 component={Logout}
                 options={{ tabBarLabel: 'Logout', tabBarOnPress: () => { this.Logout() } }}
             />

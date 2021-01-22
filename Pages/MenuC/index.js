@@ -174,6 +174,7 @@ const MenuC = ({navigation,route}) => {
                     <View style={styles.col6}>
                       <Text style={styles.label}>Nama Lengkap</Text> 
                       <Controller
+                          key={indexAppend}
                           control={control}
                           render={({ onChange, onBlur, value }) => (
                             <TextInput
@@ -279,6 +280,7 @@ const MenuC = ({navigation,route}) => {
                       <Text style={styles.label}>Agama</Text>
                       <View style={styles.SelectPickerGrid}>
                         <Controller
+                          key={indexAppend}
                           control={control}
                           render={({ onChange, onBlur, value }) => (
                             <Picker
